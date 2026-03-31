@@ -1,0 +1,51 @@
+{
+  "name": "cv-fit-check-desktop",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "dev:electron": "electron .",
+    "build": "vite build",
+    "build:electron": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json && ([ \"$OS\" = \"Windows_NT\" ] || [ -n \"$GITHUB_ACTIONS\" ]) && electron-builder || echo 'Skipping electron-builder on non-Windows platform'",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "lucide-react": "^0.344.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^4.0.379",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.13.2",
+    "xlsx": "^0.18.5"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^9.2.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-is-dev": "^3.0.1",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "terser": "^5.31.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
+    "uuid": "^13.0.0",
+    "vite": "^5.4.2"
+  }
+}

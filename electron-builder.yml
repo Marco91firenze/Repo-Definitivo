@@ -1,0 +1,24 @@
+appId: com.cvfitcheck.desktop
+productName: CV Fit Check
+directories:
+  buildResources: assets
+  output: dist-installer
+files:
+  - from: dist
+    to: .
+  - from: dist-electron
+    to: .
+win:
+  target:
+    - nsis
+    - portable
+  certificateFile: null
+  certificatePassword: null
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: CV Fit Check
+portable:
+  artifactName: CV-Fit-Check-${version}-portable.exe
