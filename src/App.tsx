@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+import { AuthForm } from './components/AuthForm';
 import { Dashboard } from './components/Dashboard';
 import { ResetPassword } from './components/ResetPassword';
 import { LandingPage } from './pages/LandingPage';
@@ -8,33 +9,25 @@ import { LandingPage } from './pages/LandingPage';
 function AppContent() {
   const { user, loading } = useAuth();
 
+  const loadingSpinner = (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  );
+
   return (
     <Routes>
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/"
         element={
-          loading ? (
-            <LandingPage />
-          ) : user ? (
-            <Dashboard />
-          ) : (
-            <LandingPage />
-          )
+          loading ? loadingSpinner : user ? <Navigate to="/app" replace /> : <LandingPage />
         }
       />
       <Route
         path="/app"
         element={
-          loading ? (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : user ? (
-            <Dashboard />
-          ) : (
-            <Navigate to="/" replace />
-          )
+          loading ? loadingSpinner : user ? <Dashboard /> : <AuthForm />
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
