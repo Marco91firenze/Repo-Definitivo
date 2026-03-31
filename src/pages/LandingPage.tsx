@@ -1,20 +1,17 @@
-import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight } from 'lucide-react';
+import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight, LogIn } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function LandingPage() {
+  const navigate = useNavigate();
+
   const handleDownload = () => {
-    // Download the installer
-    const link = document.createElement('a');
-    link.href = '/installers/CV-Fit-Check-1.0.0.exe';
-    link.download = 'CV-Fit-Check-1.0.0.exe';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV-Fit-Check-1.0.0.exe';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -24,8 +21,16 @@ export function LandingPage() {
               <h1 className="text-2xl font-bold text-slate-900">AI CV Scanner</h1>
             </div>
             <nav className="flex items-center gap-6">
-              <a href="#features" className="text-slate-600 hover:text-slate-900 transition">Features</a>
-              <a href="#why" className="text-slate-600 hover:text-slate-900 transition">Why Us</a>
+              <a href="#features" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Features</a>
+              <a href="#why" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Why Us</a>
+              <a href="#pricing" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Pricing</a>
+              <button
+                onClick={() => navigate('/app')}
+                className="text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 font-medium"
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </button>
               <button
                 onClick={handleDownload}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition"
@@ -221,7 +226,7 @@ export function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-slate-50">
+      <section id="pricing" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Simple Pricing</h2>
           <p className="text-lg text-slate-600 text-center mb-12">Start free, pay only when you need more</p>
