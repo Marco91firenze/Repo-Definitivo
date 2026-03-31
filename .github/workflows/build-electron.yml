@@ -1,55 +1,24 @@
-name: Build Windows Installer
-
-on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
-
-jobs:
-  build-windows:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: |
-          npm install
-          npm install @rollup/rollup-win32-x64-msvc
-
-      - name: Build frontend for Electron
-        run: npx vite build --outDir dist
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Compile Electron TypeScript
-        run: npx tsc -p tsconfig.electron.json
-
-      - name: Build Windows installer
-        run: npx electron-builder --win --publish never
-
-      - name: Upload installer artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-installer
-          path: |
-            dist-installer/*.exe
-            dist-installer/*.yml
-          retention-days: 30
-
-      - name: Upload to release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist-installer/*.exe
-          draft: true
+appId: com.cvfitcheck.desktop
+productName: CV Fit Check
+directories:
+  buildResources: assets
+  output: dist-installer
+files:
+  - from: dist
+    to: .
+  - from: dist-electron
+    to: dist-electron
+win:
+  target:
+    - nsis
+    - portable
+  certificateFile: null
+  certificatePassword: null
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: CV Fit Check
+portable:
+  artifactName: CV-Fit-Check-${version}-portable.exe
