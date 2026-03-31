@@ -3,18 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "AI-powered CV ranking desktop application with local processing",
+  "author": "AI CV Scanner",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "dev:electron": "electron .",
     "build": "vite build",
-    "build:electron": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json && ([ \"$OS\" = \"Windows_NT\" ] || [ -n \"$GITHUB_ACTIONS\" ]) && electron-builder || echo 'Skipping electron-builder on non-Windows platform'",
+    "build:electron": "tsc --noEmit && vite build --outDir dist && tsc -p tsconfig.electron.json && electron-builder --win --publish never",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/Bolt Database-js": "^2.57.4",
     "lucide-react": "^0.344.0",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^4.0.379",
