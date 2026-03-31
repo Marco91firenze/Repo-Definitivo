@@ -8,13 +8,13 @@
     "dev": "vite",
     "dev:electron": "electron .",
     "build": "vite build",
-    "build:electron": "tsc --noEmit && vite build --outDir dist && tsc -p tsconfig.electron.json && electron-builder --win --publish never",
+    "build:electron": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json && ([ \"$OS\" = \"Windows_NT\" ] || [ -n \"$GITHUB_ACTIONS\" ]) && electron-builder || echo 'Skipping electron-builder on non-Windows platform'",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@supabase/Bolt Database-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.57.4",
     "lucide-react": "^0.344.0",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^4.0.379",
