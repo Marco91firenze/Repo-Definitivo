@@ -24,9 +24,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install --ignore-scripts
-        env:
-          npm_config_optional: false
+        run: npm install --no-optional
 
       - name: Build
         run: npx vite build
