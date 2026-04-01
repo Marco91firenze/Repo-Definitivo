@@ -20,13 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Rebuild native modules for Electron
-        run: npx electron-rebuild
+      - name: Install dependencies (fresh for Windows)
+        run: |
+          Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue
+          npm install
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
@@ -58,3 +56,4 @@ jobs:
           files: |
             dist-installer/*.exe
           draft: true
+
