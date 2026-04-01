@@ -2,9 +2,8 @@ import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight } from 'lucide-rea
 
 export function PublicLandingPage() {
   const handleDownload = () => {
-    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV.Fit.Check.Setup.1.0.0.exe';
+    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest';
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -15,7 +14,7 @@ export function PublicLandingPage() {
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-900">AI CV Scanner</h1>
+              <h1 className="text-2xl font-bold text-slate-900">CV AI Scanner</h1>
             </div>
             <nav className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-slate-600 hover:text-slate-900 transition font-medium">Features</a>
@@ -40,7 +39,7 @@ export function PublicLandingPage() {
                 CV Ranking Made <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">Private & Secure</span>
               </h2>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
-                AI CV Scanner analyzes CVs using local artificial intelligence. Your sensitive data never leaves your computer. Fully GDPR compliant.
+                CV AI Scanner analyzes CVs using local artificial intelligence. Your sensitive data never leaves your computer. Fully GDPR compliant.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
@@ -113,7 +112,7 @@ export function PublicLandingPage() {
 
       <section id="why" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Why Choose AI CV Scanner?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Why Choose CV AI Scanner?</h2>
           <p className="text-xl text-slate-600 text-center mb-12 max-w-2xl mx-auto">
             Intelligent CV ranking that respects your privacy and complies with regulations.
           </p>
@@ -316,7 +315,7 @@ export function PublicLandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Download AI CV Scanner now and analyze your first 10 CVs completely free. No credit card, no registration hassles.
+            Download CV AI Scanner now and analyze your first 10 CVs completely free. No credit card, no registration hassles.
           </p>
           <button
             onClick={handleDownload}
@@ -333,7 +332,7 @@ export function PublicLandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="text-white font-bold mb-4">About</h3>
-              <p className="text-sm">AI CV Scanner - Privacy-first CV ranking for modern HR.</p>
+              <p className="text-sm">CV AI Scanner - Privacy-first CV ranking for modern HR.</p>
             </div>
             <div>
               <h3 className="text-white font-bold mb-4">Features</h3>
@@ -359,7 +358,7 @@ export function PublicLandingPage() {
             </div>
           </div>
           <div className="border-t border-slate-800 pt-8 text-center text-sm">
-            <p>Copyright 2026 AI CV Scanner. All rights reserved.</p>
+            <p>Copyright 2026 CV AI Scanner. All rights reserved.</p>
           </div>
         </div>
       </footer>
