@@ -51,13 +51,4 @@ jobs:
         id: pkg
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
-          echo "version=$version" >> $env:GITHUB_OUTPUT
-        shell: pwsh
-
-      - name: Create or update GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.pkg.outputs.version }}
-          name: CV Fit Check v${{ steps.pkg.outputs.version }}
-          body: |
-            ## CV Fit Check v${{ steps
+          echo "version=$version"
