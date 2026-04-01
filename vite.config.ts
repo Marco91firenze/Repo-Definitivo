@@ -1,27 +1,31 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
-
-// https://vitejs.dev/config/
+import path from 'path';
+ 
 export default defineConfig({
   base: '/',
   plugins: [
     react(),
     {
-      name: 'create-nojekyll',
-      writeBundle() {
-        fs.writeFileSync('docs/.nojekyll', '');
+      name: 'github-pages-assets',
+      writeBundle(options) {
+        const outDir = options.dir ?? 'docs';
+ 
+        // Only write GitHub Pages-specific files when building to docs/
+        if (!outDir.endsWith('docs')) return;
+ 
+        fs.writeFileSync(path.join(outDir, '.nojekyll'), '');
+ 
         if (fs.existsSync('CNAME')) {
-          fs.copyFileSync('CNAME', 'docs/CNAME');
+          fs.copyFileSync('CNAME', path.join(outDir, 'CNAME'));
         }
-        const indexContent = fs.readFileSync('docs/index.html', 'utf-8');
-        fs.writeFileSync('docs/404.html', indexContent);
+ 
+        const indexContent = fs.readFileSync(path.join(outDir, 'index.html'), 'utf-8');
+        fs.writeFileSync(path.join(outDir, '404.html'), indexContent);
       },
     },
   ],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
   build: {
     outDir: 'docs',
     minify: 'terser',
@@ -40,9 +44,11 @@ export default defineConfig({
       },
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },
   },
 });
+ 
