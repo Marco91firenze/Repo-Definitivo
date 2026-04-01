@@ -18,10 +18,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Clean install dependencies
+        run: |
+          if (Test-Path package-lock.json) { Remove-Item package-lock.json }
+          if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }
+          npm install
+        shell: pwsh
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
@@ -57,13 +60,4 @@ jobs:
           tag_name: v${{ steps.pkg.outputs.version }}
           name: CV Fit Check v${{ steps.pkg.outputs.version }}
           body: |
-            ## CV Fit Check v${{ steps.pkg.outputs.version }}
-
-            Download the installer below to get started.
-
-            **Installation:** Download the `.exe` file, run it, and follow the setup wizard.
-          files: |
-            dist-installer/*.exe
-          draft: false
-          prerelease: false
-          make_latest: true
+            ## CV Fit Check v${{ steps
