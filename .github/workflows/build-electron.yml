@@ -18,10 +18,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Clean install dependencies
+        run: |
+          Remove-Item -Path package-lock.json -ErrorAction SilentlyContinue
+          Remove-Item -Path node_modules -Recurse -ErrorAction SilentlyContinue
+          npm install
+        shell: pwsh
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
