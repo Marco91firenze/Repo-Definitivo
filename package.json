@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@supabase/Bolt Database-js": "^2.57.4",
+    "@supabase/Bolt Database-js": "^2.101.1",
     "lucide-react": "^0.344.0",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^4.0.379",
