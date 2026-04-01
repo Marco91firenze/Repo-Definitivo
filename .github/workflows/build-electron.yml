@@ -18,13 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Clean install dependencies
-        run: |
-          Remove-Item -Path package-lock.json -ErrorAction SilentlyContinue
-          Remove-Item -Path node_modules -Recurse -ErrorAction SilentlyContinue
-          npm install
-        shell: pwsh
+      - name: Install dependencies
+        run: npm ci
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
@@ -38,15 +35,6 @@ jobs:
       - name: Build Windows installer
         run: npx electron-builder --win --publish never
 
-      - name: Upload installer artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-installer
-          path: |
-            dist-installer/*.exe
-            dist-installer/*.yml
-          retention-days: 30
-
       - name: Get version from package.json
         id: pkg
         run: |
@@ -57,6 +45,15 @@ jobs:
       - name: List installer files
         run: Get-ChildItem -Path dist-installer -Filter *.exe | ForEach-Object { Write-Host $_.FullName }
         shell: pwsh
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: |
+            dist-installer/*.exe
+            dist-installer/*.yml
+          retention-days: 30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
