@@ -3,8 +3,6 @@ name: Build Windows Installer
 on:
   push:
     branches: [main, master]
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -20,11 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies (fresh for Windows)
-        run: |
-          Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue
-          npm install
+      - name: Install dependencies
+        run: npm ci
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
@@ -37,8 +34,6 @@ jobs:
 
       - name: Build Windows installer
         run: npx electron-builder --win --publish never
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
@@ -49,11 +44,26 @@ jobs:
             dist-installer/*.yml
           retention-days: 30
 
-      - name: Upload to release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Get version from package.json
+        id: pkg
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          name: CV Fit Check v${{ steps.pkg.outputs.version }}
+          body: |
+            ## CV Fit Check v${{ steps.pkg.outputs.version }}
+
+            Download the installer below to get started.
+
+            **Installation:** Download the `.exe` file, run it, and follow the setup wizard.
           files: |
             dist-installer/*.exe
-          draft: true
-
+          draft: false
+          prerelease: false
+          make_latest: true
