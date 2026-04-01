@@ -5,6 +5,11 @@ import { initializeDatabase } from './services/database.js';
 import { processCVFile } from './services/cvProcessor.js';
 import { validateLicense, syncCredits, saveUserCredentials, clearCredentials, purchaseCredits, canProcessCV, deductCredit } from './services/licenseManager.js';
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+}
+
 let mainWindow: BrowserWindow | null;
 
 function createWindow() {
@@ -32,6 +37,13 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+});
 
 app.on('ready', async () => {
   await initializeDatabase();
