@@ -6,8 +6,12 @@ directories:
 files:
   - from: dist
     to: .
+    filter:
+      - "**/*"
   - from: dist-electron
-    to: .
+    to: dist-electron
+    filter:
+      - "**/*"
   - package.json
 extraMetadata:
   type: commonjs
