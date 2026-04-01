@@ -4,9 +4,13 @@ directories:
   buildResources: assets
   output: dist-installer
 files:
-  - dist/**/*
-  - dist-electron/**/*
+  - from: dist
+    to: .
+  - from: dist-electron
+    to: .
   - package.json
+extraMetadata:
+  type: commonjs
 win:
   target:
     - nsis
