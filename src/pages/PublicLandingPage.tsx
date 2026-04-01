@@ -2,9 +2,9 @@ import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight } from 'lucide-rea
 
 export function PublicLandingPage() {
   const handleDownload = () => {
-    const downloadUrl = 'https://github.com/yourusername/cv-fit-check/releases/download/v1.0.0/CV-Fit-Check-1.0.0.exe';
-    window.location.href = downloadUrl;
+    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV.Fit.Check.Setup.1.0.0.exe';
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
