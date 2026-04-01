@@ -18,13 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Clean install dependencies
-        run: |
-          if (Test-Path package-lock.json) { Remove-Item package-lock.json }
-          if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }
-          npm install
-        shell: pwsh
+        run: npm ci
 
       - name: Build frontend for Electron
         run: npx vite build --outDir dist
@@ -51,4 +48,27 @@ jobs:
         id: pkg
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
-          echo "version=$version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: List installer files
+        run: Get-ChildItem -Path dist-installer -Filter *.exe | ForEach-Object { Write-Host $_.FullName }
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          name: CV Fit Check v${{ steps.pkg.outputs.version }}
+          body: |
+            ## CV Fit Check v${{ steps.pkg.outputs.version }}
+
+            Download the installer below to get started.
+
+            **Installation:** Download the `.exe` file, run it, and follow the setup wizard.
+          files: dist-installer/*.exe
+          draft: false
+          prerelease: false
+          make_latest: true
