@@ -4,14 +4,8 @@ directories:
   buildResources: assets
   output: dist-installer
 files:
-  - from: dist
-    to: .
-    filter:
-      - "**/*"
-  - from: dist-electron
-    to: dist-electron
-    filter:
-      - "**/*"
+  - dist/**/*
+  - dist-electron/**/*
   - package.json
 win:
   target:
@@ -25,6 +19,6 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: CV Fit Check
-  deleteAppDataOnUninstall: false
 portable:
   artifactName: CV-Fit-Check-${version}-portable.exe
+ 
