@@ -4,10 +4,9 @@ directories:
   buildResources: assets
   output: dist-installer
 files:
-  - from: dist
-    to: dist
-  - from: dist-electron
-    to: dist-electron
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
 win:
   target:
     - nsis
