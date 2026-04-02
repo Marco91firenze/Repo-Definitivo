@@ -1,53 +1,9 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import fs from 'fs';
- 
-// https://vitejs.dev/config/
-export default defineConfig(() => {
-  const isElectron = process.env.ELECTRON_BUILD === 'true';
- 
-  return {
-    base: isElectron ? './' : '/',
-    plugins: [
-      react(),
-      !isElectron && {
-        name: 'create-nojekyll',
-        writeBundle() {
-          fs.writeFileSync('docs/.nojekyll', '');
-          if (fs.existsSync('CNAME')) {
-            fs.copyFileSync('CNAME', 'docs/CNAME');
-          }
-          const indexContent = fs.readFileSync('docs/index.html', 'utf-8');
-          fs.writeFileSync('docs/404.html', indexContent);
-        },
-      },
-    ].filter(Boolean),
-    optimizeDeps: {
-      exclude: ['lucide-react'],
-    },
-    build: {
-      outDir: isElectron ? 'dist' : 'docs',
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_debugger: true,
-          passes: 2,
-        },
-        format: {
-          comments: false,
-        },
-      },
-      rollupOptions: {
-        input: {
-          main: 'index.html',
-        },
-        output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
-          },
-        },
-      },
-    },
-  };
-});
- 
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  base: '/',
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  }
+})
