@@ -1,69 +1,41 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AuthForm } from './components/AuthForm';
-import { Dashboard } from './components/Dashboard';
-import { ResetPassword } from './components/ResetPassword';
-import { LandingPage } from './pages/LandingPage';
-
-// Simple helper for the download functionality
-const handleDownload = () => {
-  const DOWNLOAD_URL = "https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe";
-  const link = document.createElement('a');
-  link.href = DOWNLOAD_URL;
-  link.setAttribute('download', 'CV Fit Check Setup 1.0.0.exe');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-function AppContent() {
-  const { user, loading } = useAuth();
-
-  // Loading state to prevent flickering during auth checks
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  return (
-    <Routes>
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route
-        path="/"
-        element={
-          user ? (
-            <Navigate to="/app" replace />
-          ) : (
-            <LandingPage onDownload={handleDownload} />
-          )
-        }
-      />
-      <Route
-        path="/app"
-        element={
-          user ? (
-            <Dashboard />
-          ) : (
-            <AuthForm />
-          )
-        }
-      />
-      {/* Catch-all route to redirect back home */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-}
+import React, { useState } from 'react';
 
 function App() {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const DOWNLOAD_URL = "https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe";
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(DOWNLOAD_URL);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'CV Fit Check Setup 1.0.0.exe');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      window.location.assign(DOWNLOAD_URL);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+    <div style={{ backgroundColor: '#0f172a', color: 'white', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+      <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold' }}>CV Fit Check</h1>
+      <p style={{ color: '#94a3b8', marginBottom: '40px' }}>Professional Desktop Tool</p>
+      <button 
+        onClick={handleDownload}
+        disabled={isDownloading}
+        style={{ backgroundColor: isDownloading ? '#475569' : '#2563eb', color: 'white', padding: '18px 56px', borderRadius: '50px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+      >
+        {isDownloading ? 'Downloading...' : 'Download for Windows'}
+      </button>
+    </div>
   );
 }
 
