@@ -1,34 +1,30 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-
-import { AuthForm } from './components/AuthForm';
+import { UserProvider, useUser } from './contexts/UserContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { SetupForm } from './components/SetupForm';
 import { Dashboard } from './components/Dashboard';
-import { ResetPassword } from './components/ResetPassword';
-import { LandingPage } from './pages/LandingPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function AppContent() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useUser();
 
-  const loadingSpinner = (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/"
-        element={
-          loading ? loadingSpinner : user ? <Navigate to="/app" replace /> : <LandingPage />
-        }
+        element={user ? <Navigate to="/app" replace /> : <SetupForm />}
       />
       <Route
         path="/app"
-        element={
-          loading ? loadingSpinner : user ? <Dashboard /> : <AuthForm />
-        }
+        element={user ? <Dashboard /> : <Navigate to="/" replace />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -37,11 +33,15 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <UserProvider>
+          <LanguageProvider>
+            <AppContent />
+          </LanguageProvider>
+        </UserProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

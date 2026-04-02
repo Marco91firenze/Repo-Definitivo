@@ -1,50 +1,37 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useUser } from '../contexts/UserContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { supabase } from '../lib/supabase';
 import { Upload, FileText, X, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface Job {
   id: string;
   title: string;
   location: string;
-  english_level: string;
-  minimum_experience: number;
-  required_skills: string[];
 }
 
 interface CVUploadProps {
   selectedJobId: string | null;
 }
 
-interface UploadedFile {
-  file: File;
-  status: 'pending' | 'uploading' | 'success' | 'error';
+interface SelectedFile {
+  path: string;
+  name: string;
+  status: 'pending' | 'processing' | 'success' | 'error';
   error?: string;
 }
 
-interface Company {
-  free_cvs_remaining: number;
-  total_credits_purchased: number;
-}
-
 export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
-  const { user } = useAuth();
-  const { language, t } = useLanguage();
+  const { user, refreshProfile } = useUser();
+  const { t } = useLanguage();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(initialJobId);
-  const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const [files, setFiles] = useState<SelectedFile[]>([]);
   const [processing, setProcessing] = useState(false);
-  const [company, setCompany] = useState<Company | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadJobs();
-      loadCompany();
-    }
-  }, [user]);
+    loadJobs();
+  }, []);
 
   useEffect(() => {
     if (initialJobId) {
@@ -52,140 +39,61 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
     }
   }, [initialJobId]);
 
-  const loadCompany = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('companies')
-      .select('free_cvs_remaining, total_credits_purchased')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (data) {
-      setCompany(data);
-    }
-  };
-
   const loadJobs = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('company_id', user.id)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
-
-    if (data) {
-      setJobs(data);
+    try {
+      const result = await (window as any).electronAPI.getJobs();
+      if (result?.success && result.data) {
+        setJobs(result.data);
+      }
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  const handleSelectFiles = async () => {
+    try {
+      const filePaths = await (window as any).electronAPI.selectFiles();
+      if (filePaths && filePaths.length > 0) {
+        const newFiles: SelectedFile[] = filePaths.map((p: string) => ({
+          path: p,
+          name: p.split(/[/\\]/).pop() || p,
+          status: 'pending',
+        }));
+        setFiles(prev => [...prev, ...newFiles]);
+      }
+    } catch (error) {
+      console.error('File selection failed:', error);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    addFiles(droppedFiles);
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      addFiles(selectedFiles);
-    }
-  };
-
-  const addFiles = (newFiles: File[]) => {
-    const pdfDocxFiles = newFiles.filter(
-      (file) =>
-        file.type === 'application/pdf' ||
-        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        file.type === 'application/msword'
+    const validFiles = droppedFiles.filter(f =>
+      f.type === 'application/pdf' ||
+      f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      f.type === 'application/msword'
     );
 
-    const uploadedFiles: UploadedFile[] = pdfDocxFiles.map((file) => ({
-      file,
+    const newFiles: SelectedFile[] = validFiles.map(f => ({
+      path: (f as any).path || f.name,
+      name: f.name,
       status: 'pending',
     }));
-
-    setFiles((prev) => [...prev, ...uploadedFiles]);
+    setFiles(prev => [...prev, ...newFiles]);
   };
 
   const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const processCV = async (file: File, jobId: string): Promise<void> => {
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = `${user!.id}/${jobId}/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('cvs')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('cvs')
-      .getPublicUrl(filePath);
-
-    const { data: cvData, error: cvError } = await supabase
-      .from('cvs')
-      .insert({
-        job_id: jobId,
-        company_id: user!.id,
-        file_name: file.name,
-        file_url: publicUrl,
-        upload_status: 'pending',
-      })
-      .select()
-      .single();
-
-    if (cvError) throw cvError;
-
-    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-cv`;
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        cv_id: cvData.id,
-        file_url: publicUrl,
-        language: language,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to process CV');
-    }
-  };
-
-  const getTotalAvailableCredits = () => {
-    if (!company) return 0;
-    return company.free_cvs_remaining + (company.total_credits_purchased || 0);
-  };
-
-  const hasEnoughCredits = (cvCount: number) => {
-    return getTotalAvailableCredits() >= cvCount;
-  };
-
-  const handleUpload = async () => {
-    if (!selectedJobId || files.length === 0 || !company) return;
+  const handleProcess = async () => {
+    if (!selectedJobId || files.length === 0) return;
 
     const pendingCount = files.filter(f => f.status === 'pending').length;
+    const creditsAvailable = user?.credits_remaining ?? 0;
 
-    if (!hasEnoughCredits(pendingCount)) {
+    if (creditsAvailable < pendingCount) {
       setShowUpgradeModal(true);
       return;
     }
@@ -195,19 +103,21 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
     for (let i = 0; i < files.length; i++) {
       if (files[i].status !== 'pending') continue;
 
-      setFiles((prev) =>
-        prev.map((f, idx) => (idx === i ? { ...f, status: 'uploading' } : f))
+      setFiles(prev =>
+        prev.map((f, idx) => idx === i ? { ...f, status: 'processing' } : f)
       );
 
       try {
-        await processCV(files[i].file, selectedJobId);
-        setFiles((prev) =>
-          prev.map((f, idx) => (idx === i ? { ...f, status: 'success' } : f))
+        const result = await (window as any).electronAPI.processCv(files[i].path, selectedJobId);
+        if (!result?.success) {
+          throw new Error(result?.error || 'Processing failed');
+        }
+        setFiles(prev =>
+          prev.map((f, idx) => idx === i ? { ...f, status: 'success' } : f)
         );
-
-        await loadCompany();
+        await refreshProfile();
       } catch (error: any) {
-        setFiles((prev) =>
+        setFiles(prev =>
           prev.map((f, idx) =>
             idx === i ? { ...f, status: 'error', error: error.message } : f
           )
@@ -220,10 +130,10 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
 
   return (
     <div className="space-y-6">
-      {company && getTotalAvailableCredits() <= 10 && company.free_cvs_remaining === 0 && (
+      {user && user.credits_remaining <= 3 && user.credits_remaining > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <p className="text-sm text-amber-800">
-            You have {company.total_credits_purchased} purchased CVs remaining. Consider upgrading for more capacity.
+            You have {user.credits_remaining} CV selecting credit{user.credits_remaining !== 1 ? 's' : ''} remaining.
           </p>
         </div>
       )}
@@ -231,9 +141,9 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
           {t('cvUpload.selectJob')}
-          {company && (
+          {user && (
             <span className="ml-2 text-sm text-slate-500">
-              ({getTotalAvailableCredits()} CV{getTotalAvailableCredits() !== 1 ? 's' : ''} available)
+              ({user.credits_remaining} credit{user.credits_remaining !== 1 ? 's' : ''} available)
             </span>
           )}
         </label>
@@ -255,14 +165,9 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
       {selectedJobId && (
         <>
           <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+            onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
-              isDragging
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-slate-300 hover:border-slate-400'
-            }`}
+            className="border-2 border-dashed rounded-xl p-12 text-center transition-colors border-slate-300 hover:border-slate-400"
           >
             <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
@@ -271,21 +176,13 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
             <p className="text-slate-600 mb-4">
               Drag and drop your CV files here or click to browse
             </p>
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.docx,.doc"
-              onChange={handleFileInput}
-              className="hidden"
-              id="file-input"
+            <button
+              onClick={handleSelectFiles}
               disabled={processing}
-            />
-            <label
-              htmlFor="file-input"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors disabled:opacity-50"
             >
               Browse Files
-            </label>
+            </button>
           </div>
 
           {files.length > 0 && (
@@ -302,11 +199,11 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
                     <FileText className="w-5 h-5 text-slate-400" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-900 truncate">
-                        {file.file.name}
+                        {file.name}
                       </p>
-                      <p className="text-xs text-slate-500">
-                        {(file.file.size / 1024).toFixed(1)} KB
-                      </p>
+                      {file.error && (
+                        <p className="text-xs text-red-600">{file.error}</p>
+                      )}
                     </div>
                     {file.status === 'success' && (
                       <CheckCircle className="w-5 h-5 text-green-600" />
@@ -314,7 +211,7 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
                     {file.status === 'error' && (
                       <AlertCircle className="w-5 h-5 text-red-600" />
                     )}
-                    {file.status === 'uploading' && (
+                    {file.status === 'processing' && (
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                     )}
                   </div>
@@ -331,13 +228,13 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
 
               <div className="flex space-x-3">
                 <button
-                  onClick={handleUpload}
-                  disabled={processing || files.every((f) => f.status !== 'pending')}
+                  onClick={handleProcess}
+                  disabled={processing || files.every(f => f.status !== 'pending')}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {processing ? 'Analyzing CVs...' : 'Analyze Selected CVs'}
                 </button>
-                {files.some((f) => f.status === 'success') && (
+                {files.some(f => f.status === 'success') && (
                   <button
                     onClick={() => setFiles([])}
                     className="px-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 rounded-lg transition-colors"
@@ -356,23 +253,32 @@ export function CVUpload({ selectedJobId: initialJobId }: CVUploadProps) {
           <div className="bg-white rounded-xl p-8 max-w-md mx-4">
             <h3 className="text-2xl font-bold text-slate-900 mb-4">Not Enough Credits</h3>
             <p className="text-slate-600 mb-6">
-              You have {getTotalAvailableCredits()} CV{getTotalAvailableCredits() !== 1 ? 's' : ''} available, but are trying to upload {files.filter(f => f.status === 'pending').length}. Please upgrade your plan or use fewer CVs.
+              You have {user?.credits_remaining ?? 0} credit{(user?.credits_remaining ?? 0) !== 1 ? 's' : ''} available, but are trying to select {files.filter(f => f.status === 'pending').length} CVs. Please purchase more credits or select fewer CVs.
             </p>
             <div className="space-y-3">
               <button
                 onClick={() => setShowUpgradeModal(false)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
               >
-                Choose Fewer CVs
+                Select Fewer CVs
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   setShowUpgradeModal(false);
-                  window.location.href = 'https://billing.stripe.com';
+                  await (window as any).electronAPI.purchaseCredits('batch_100');
+                }}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+              >
+                Buy 100 Credits (€50)
+              </button>
+              <button
+                onClick={async () => {
+                  setShowUpgradeModal(false);
+                  await (window as any).electronAPI.purchaseCredits('batch_1000');
                 }}
                 className="w-full bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold py-2 rounded-lg transition"
               >
-                Upgrade Plan
+                Buy 1000 Credits (€300)
               </button>
             </div>
           </div>

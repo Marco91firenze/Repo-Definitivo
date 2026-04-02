@@ -8,16 +8,15 @@
     "dev": "vite",
     "dev:electron": "electron .",
     "build": "vite build",
+    "build:landing": "BUILD_TARGET=landing vite build",
     "build:electron": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json && ([ \"$OS\" = \"Windows_NT\" ] || [ -n \"$GITHUB_ACTIONS\" ]) && electron-builder || echo 'Skipping electron-builder on non-Windows platform'",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
     "lucide-react": "^0.344.0",
     "pdf-parse": "^1.1.1",
-    "pdfjs-dist": "^4.0.379",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.13.2",

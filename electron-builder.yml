@@ -11,8 +11,7 @@ win:
   target:
     - nsis
     - portable
-  certificateFile: null
-  certificatePassword: null
+  artifactName: CV-Fit-Check-Setup.${ext}
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
@@ -20,4 +19,4 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: CV Fit Check
 portable:
-  artifactName: CV-Fit-Check-${version}-portable.exe
+  artifactName: CV-Fit-Check-Portable.exe

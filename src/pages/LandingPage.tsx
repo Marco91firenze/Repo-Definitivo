@@ -1,11 +1,8 @@
-import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight, LogIn } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 
 export function LandingPage() {
-  const navigate = useNavigate();
-
   const handleDownload = () => {
-    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV-Fit-Check-1.0.0.exe';
+    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV-Fit-Check-Setup.exe';
   };
 
   return (
@@ -24,13 +21,6 @@ export function LandingPage() {
               <a href="#features" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Features</a>
               <a href="#why" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Why Us</a>
               <a href="#pricing" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Pricing</a>
-              <button
-                onClick={() => navigate('/app')}
-                className="text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 font-medium"
-              >
-                <LogIn className="w-4 h-4" />
-                Sign In
-              </button>
               <button
                 onClick={handleDownload}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition"

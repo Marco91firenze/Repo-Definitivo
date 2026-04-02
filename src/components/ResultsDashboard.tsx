@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { supabase } from '../lib/supabase';
 import { Download, Trophy, ChevronDown, ChevronUp, Trash2, FileText, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { getExportTranslation } from '../utils/exportTranslations';
@@ -15,12 +13,7 @@ interface ScoringParameter {
 interface Job {
   id: string;
   title: string;
-  scoring_parameters?: {
-    param1: ScoringParameter;
-    param2: ScoringParameter;
-    param3: ScoringParameter;
-    param4: ScoringParameter;
-  };
+  scoring_parameters?: string | null;
 }
 
 interface SkillScore {
@@ -40,6 +33,7 @@ interface ReasoningChain {
 
 interface Candidate {
   id: string;
+  job_id: string;
   candidate_name: string;
   fit_score: number;
   experience_score: number;
@@ -64,11 +58,9 @@ interface Candidate {
   reasoning_chain: ReasoningChain;
   skill_evidence: Record<string, string>;
   skill_variations_matched: Record<string, string[]>;
-  jobs: Job;
 }
 
 export function ResultsDashboard() {
-  const { user } = useAuth();
   const { language, t } = useLanguage();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -79,102 +71,88 @@ export function ResultsDashboard() {
   const [selectedSummary, setSelectedSummary] = useState<{ name: string; summary: string } | null>(null);
 
   useEffect(() => {
-    if (user) {
-      loadJobs();
-    }
-  }, [user]);
+    loadJobs();
+  }, []);
 
   useEffect(() => {
-    if (user && selectedJobId) {
+    if (selectedJobId) {
       setCandidates([]);
       loadCandidates();
     }
-  }, [user, selectedJobId]);
+  }, [selectedJobId]);
 
   const loadJobs = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('jobs')
-      .select('id, title, scoring_parameters')
-      .eq('company_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (data && data.length > 0) {
-      setJobs(data);
-      setSelectedJobId(data[0].id);
+    try {
+      const result = await (window as any).electronAPI.getJobs();
+      if (result?.success && result.data && result.data.length > 0) {
+        setJobs(result.data);
+        setSelectedJobId(result.data[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
     }
+    setLoading(false);
   };
 
   const loadCandidates = async () => {
-    if (!user || !selectedJobId) return;
-
+    if (!selectedJobId) return;
     setLoading(true);
-
-    const { data } = await supabase
-      .from('cv_analyses')
-      .select(`
-        *,
-        jobs!inner(title, company_id, scoring_parameters)
-      `)
-      .eq('job_id', selectedJobId)
-      .eq('jobs.company_id', user.id)
-      .order('fit_score', { ascending: false });
-
-    if (data) {
-      setCandidates(data as any);
+    try {
+      const result = await (window as any).electronAPI.getResults(selectedJobId);
+      if (result?.success && result.data) {
+        setCandidates(result.data);
+      }
+    } catch (error) {
+      console.error('Failed to load results:', error);
     }
     setLoading(false);
   };
 
   const deleteCandidate = async (candidateId: string) => {
     if (!confirm(t('results.deleteConfirm'))) return;
-
-    const candidate = candidates.find(c => c.id === candidateId);
-    if (!candidate) return;
-
-    const { data: cvData } = await supabase
-      .from('cvs')
-      .select('file_url')
-      .eq('id', candidate.id)
-      .maybeSingle();
-
-    if (cvData?.file_url) {
-      const filePath = decodeURIComponent(cvData.file_url.split('/object/public/cvs/')[1] || '');
-      if (filePath) {
-        await supabase.storage.from('cvs').remove([filePath]);
+    try {
+      const result = await (window as any).electronAPI.deleteResult(candidateId);
+      if (result?.success) {
+        setCandidates(candidates.filter(c => c.id !== candidateId));
       }
-    }
-
-    const { error } = await supabase
-      .from('cv_analyses')
-      .delete()
-      .eq('id', candidateId);
-
-    if (!error) {
-      setCandidates(candidates.filter(c => c.id !== candidateId));
+    } catch (error) {
+      console.error('Failed to delete result:', error);
     }
   };
 
   const clearAllResults = async () => {
     if (!selectedJobId) return;
     if (!confirm(t('results.clearAllConfirm').replace('{count}', candidates.length.toString()))) return;
-
-    const { error } = await supabase
-      .from('cv_analyses')
-      .delete()
-      .eq('job_id', selectedJobId);
-
-    if (!error) {
-      setCandidates([]);
+    try {
+      const result = await (window as any).electronAPI.clearResults(selectedJobId);
+      if (result?.success) {
+        setCandidates([]);
+      }
+    } catch (error) {
+      console.error('Failed to clear results:', error);
     }
+  };
+
+  const getScoringParams = () => {
+    const currentJob = jobs.find(j => j.id === selectedJobId);
+    if (currentJob?.scoring_parameters) {
+      try {
+        return JSON.parse(currentJob.scoring_parameters);
+      } catch {}
+    }
+    return {
+      param1: { name: 'Experience', max_score: 40 },
+      param2: { name: 'Skills', max_score: 30 },
+      param3: { name: 'Location', max_score: 15 },
+      param4: { name: 'English', max_score: 15 },
+    };
   };
 
   const prepareWorksheetData = () => {
     const scoringParams = getScoringParams();
     const currentJob = jobs.find(j => j.id === selectedJobId);
 
-    const worksheetData = [
+    const worksheetData: any[][] = [
       [getExportTranslation(language, 'candidateRankingReport')],
       [getExportTranslation(language, 'jobTitle'), currentJob?.title || ''],
       [getExportTranslation(language, 'exportDate'), new Date().toLocaleDateString()],
@@ -221,122 +199,20 @@ export function ResultsDashboard() {
       ]);
     });
 
-    if (candidates.some(c => c.skill_breakdown && c.skill_breakdown.length > 0)) {
-      worksheetData.push([]);
-      worksheetData.push([getExportTranslation(language, 'skillBreakdown')]);
-      worksheetData.push([]);
-
-      candidates.forEach((c) => {
-        if (c.skill_breakdown && c.skill_breakdown.length > 0) {
-          worksheetData.push([c.candidate_name]);
-          worksheetData.push([
-            getExportTranslation(language, 'skill'),
-            getExportTranslation(language, 'scorePercentage'),
-            getExportTranslation(language, 'assessment')
-          ]);
-          c.skill_breakdown.forEach(skill => {
-            worksheetData.push([skill.skill, skill.percentage, skill.assessment]);
-          });
-          worksheetData.push([]);
-        }
-      });
-    }
-
     return { worksheetData, currentJob };
   };
 
   const exportToExcel = () => {
     const { worksheetData, currentJob } = prepareWorksheetData();
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
     worksheet['!cols'] = [
-      { wch: 6 },
-      { wch: 20 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 20 },
-      { wch: 50 },
+      { wch: 6 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 50 },
     ];
-
-    const boldCells = ['A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'I6', 'J6', 'K6', 'L6', 'M6', 'N6', 'O6', 'P6'];
-    boldCells.forEach(cell => {
-      if (worksheet[cell]) {
-        worksheet[cell].s = { font: { bold: true } };
-      }
-    });
-
-    candidates.forEach((_, index) => {
-      const rowNum = index + 7;
-      const cellsToMakeBold = ['C', 'L', 'M', 'N', 'P'];
-      cellsToMakeBold.forEach(col => {
-        const cell = `${col}${rowNum}`;
-        if (worksheet[cell]) {
-          worksheet[cell].s = { font: { bold: true } };
-        }
-      });
-    });
-
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Candidate Rankings');
-
     XLSX.writeFile(workbook, `${currentJob?.title || 'candidates'}-rankings-${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
-
-  const exportToGoogleSheets = () => {
-    const { worksheetData, currentJob } = prepareWorksheetData();
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    worksheet['!cols'] = [
-      { wch: 6 },
-      { wch: 20 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 20 },
-      { wch: 50 },
-    ];
-
-    const boldCells = ['A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'I6', 'J6', 'K6', 'L6', 'M6', 'N6', 'O6', 'P6'];
-    boldCells.forEach(cell => {
-      if (worksheet[cell]) {
-        worksheet[cell].s = { font: { bold: true } };
-      }
-    });
-
-    candidates.forEach((_, index) => {
-      const rowNum = index + 7;
-      const cellsToMakeBold = ['C', 'L', 'M', 'N', 'P'];
-      cellsToMakeBold.forEach(col => {
-        const cell = `${col}${rowNum}`;
-        if (worksheet[cell]) {
-          worksheet[cell].s = { font: { bold: true } };
-        }
-      });
-    });
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Candidate Rankings');
-
-    XLSX.writeFile(workbook, `${currentJob?.title || 'candidates'}-rankings-${new Date().toISOString().split('T')[0]}.xlsx`, { bookType: 'xlsx' });
   };
 
   const getPercentageColor = (percentage: number) => {
@@ -357,30 +233,9 @@ export function ResultsDashboard() {
     return 'bg-red-600';
   };
 
-  const getScoringParams = () => {
-    const currentJob = jobs.find(j => j.id === selectedJobId);
-    if (!currentJob?.scoring_parameters) {
-      return {
-        param1: { name: 'Experience', max_score: 40 },
-        param2: { name: 'Skills', max_score: 30 },
-        param3: { name: 'Location', max_score: 15 },
-        param4: { name: 'English', max_score: 15 },
-      };
-    }
-    return currentJob.scoring_parameters;
-  };
+  const scoringParams = getScoringParams();
 
-  const openSummaryModal = (name: string, summary: string) => {
-    setSelectedSummary({ name, summary });
-    setSummaryModalOpen(true);
-  };
-
-  const closeSummaryModal = () => {
-    setSummaryModalOpen(false);
-    setSelectedSummary(null);
-  };
-
-  if (loading) {
+  if (loading && jobs.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -397,8 +252,6 @@ export function ResultsDashboard() {
       </div>
     );
   }
-
-  const scoringParams = getScoringParams();
 
   return (
     <div className="space-y-6">
@@ -437,13 +290,6 @@ export function ResultsDashboard() {
               <Download className="w-5 h-5" />
               <span>{t('results.exportToExcel')}</span>
             </button>
-            <button
-              onClick={exportToGoogleSheets}
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <Download className="w-5 h-5" />
-              <span>{t('results.exportToGoogleSheets')}</span>
-            </button>
           </>
         )}
       </div>
@@ -468,9 +314,7 @@ export function ResultsDashboard() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-4 flex-1">
                   <div
-                    className={`w-12 h-12 rounded-full ${getFitScoreColor(
-                      candidate.fit_score
-                    )} flex items-center justify-center text-white font-bold text-lg`}
+                    className={`w-12 h-12 rounded-full ${getFitScoreColor(candidate.fit_score)} flex items-center justify-center text-white font-bold text-lg`}
                   >
                     {candidate.fit_score}
                   </div>
@@ -479,16 +323,13 @@ export function ResultsDashboard() {
                       <h3 className="text-lg font-semibold text-slate-900">
                         {candidate.candidate_name}
                       </h3>
-                      {index === 0 && (
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                      )}
+                      {index === 0 && <Trophy className="w-5 h-5 text-yellow-500" />}
                     </div>
-                    <p className="text-sm text-slate-600">{candidate.jobs.title}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => openSummaryModal(candidate.candidate_name, candidate.summary)}
+                    onClick={() => { setSelectedSummary({ name: candidate.candidate_name, summary: candidate.summary }); setSummaryModalOpen(true); }}
                     className="text-blue-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
                     title={t('results.viewSummary')}
                   >
@@ -502,16 +343,10 @@ export function ResultsDashboard() {
                     <Trash2 className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() =>
-                      setExpandedId(expandedId === candidate.id ? null : candidate.id)
-                    }
+                    onClick={() => setExpandedId(expandedId === candidate.id ? null : candidate.id)}
                     className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-50 transition-colors"
                   >
-                    {expandedId === candidate.id ? (
-                      <ChevronUp className="w-6 h-6" />
-                    ) : (
-                      <ChevronDown className="w-6 h-6" />
-                    )}
+                    {expandedId === candidate.id ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
                   </button>
                 </div>
               </div>
@@ -540,13 +375,11 @@ export function ResultsDashboard() {
                   <div className="grid grid-cols-5 gap-4 text-sm">
                     <div>
                       <p className="text-slate-500 mb-1">{t('results.experience')}</p>
-                      <p className="font-semibold text-slate-900">
-                        {candidate.years_experience} {t('results.years')}
-                      </p>
+                      <p className="font-semibold text-slate-900">{candidate.years_experience} {t('results.years')}</p>
                     </div>
                     <div>
                       <p className="text-slate-500 mb-1">{t('results.location')}</p>
-                      <p className="font-semibold text-slate-900">{candidate.location}</p>
+                      <p className="font-semibold text-slate-900">{candidate.location || 'Unknown'}</p>
                     </div>
                     <div>
                       <p className="text-slate-500 mb-1">{t('results.englishLevel')}</p>
@@ -576,9 +409,7 @@ export function ResultsDashboard() {
                           {candidate.recommendation.replace('_', ' ').toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-slate-600 text-sm leading-relaxed">
-                        {candidate.recommendation_reasoning}
-                      </p>
+                      <p className="text-slate-600 text-sm leading-relaxed">{candidate.recommendation_reasoning}</p>
                     </div>
                   )}
 
@@ -588,7 +419,7 @@ export function ResultsDashboard() {
                       <ul className="space-y-1">
                         {candidate.key_strengths.map((strength, idx) => (
                           <li key={idx} className="text-sm text-slate-600 flex items-start">
-                            <span className="text-green-500 mr-2">✓</span>
+                            <span className="text-green-500 mr-2">&#10003;</span>
                             <span>{strength}</span>
                           </li>
                         ))}
@@ -602,7 +433,7 @@ export function ResultsDashboard() {
                       <ul className="space-y-1">
                         {candidate.gaps.map((gap, idx) => (
                           <li key={idx} className="text-sm text-slate-600 flex items-start">
-                            <span className="text-yellow-500 mr-2">⚠</span>
+                            <span className="text-yellow-500 mr-2">&#9888;</span>
                             <span>{gap}</span>
                           </li>
                         ))}
@@ -616,7 +447,7 @@ export function ResultsDashboard() {
                       <ul className="space-y-1">
                         {candidate.risk_factors.map((risk, idx) => (
                           <li key={idx} className="text-sm text-slate-600 flex items-start">
-                            <span className="text-red-500 mr-2">✕</span>
+                            <span className="text-red-500 mr-2">&#10005;</span>
                             <span>{risk}</span>
                           </li>
                         ))}
@@ -634,11 +465,8 @@ export function ResultsDashboard() {
                               <span className="font-medium text-slate-700">{skill.skill}</span>
                               <span className={`font-bold ${
                                 skill.percentage >= 75 ? 'text-green-600' :
-                                skill.percentage >= 50 ? 'text-orange-600' :
-                                'text-red-600'
-                              }`}>
-                                {skill.percentage}%
-                              </span>
+                                skill.percentage >= 50 ? 'text-orange-600' : 'text-red-600'
+                              }`}>{skill.percentage}%</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
                               <div
@@ -647,9 +475,6 @@ export function ResultsDashboard() {
                               />
                             </div>
                             <p className="text-xs text-slate-600 mt-1">{skill.assessment}</p>
-                            {skill.evidence && (
-                              <p className="text-xs text-slate-500 italic mt-1">"{skill.evidence}"</p>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -658,12 +483,10 @@ export function ResultsDashboard() {
 
                   <div>
                     <p className="text-slate-700 text-sm mb-2 font-semibold">{t('results.summary')}</p>
-                    <p className="text-slate-900 text-sm leading-relaxed">
-                      {candidate.summary}
-                    </p>
+                    <p className="text-slate-900 text-sm leading-relaxed">{candidate.summary}</p>
                   </div>
 
-                  {candidate.reasoning_chain && (
+                  {candidate.reasoning_chain && candidate.reasoning_chain.experience_reasoning && (
                     <div className="bg-blue-50 rounded-lg p-4 space-y-3">
                       <p className="text-blue-900 text-sm font-semibold">{t('results.detailedAnalysis')}</p>
                       <div className="space-y-2 text-sm">
@@ -710,20 +533,18 @@ export function ResultsDashboard() {
                 <p className="text-sm text-slate-600 mt-1">{t('results.candidateSummary')}</p>
               </div>
               <button
-                onClick={closeSummaryModal}
+                onClick={() => { setSummaryModalOpen(false); setSelectedSummary(null); }}
                 className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="px-6 py-5">
-              <p className="text-slate-900 leading-relaxed whitespace-pre-wrap">
-                {selectedSummary.summary}
-              </p>
+              <p className="text-slate-900 leading-relaxed whitespace-pre-wrap">{selectedSummary.summary}</p>
             </div>
             <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-end">
               <button
-                onClick={closeSummaryModal}
+                onClick={() => { setSummaryModalOpen(false); setSelectedSummary(null); }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium"
               >
                 {t('common.close')}
