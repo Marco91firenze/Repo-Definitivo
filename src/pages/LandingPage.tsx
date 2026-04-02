@@ -1,4 +1,3 @@
-import React from 'react';
 import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,12 +8,10 @@ interface LandingPageProps {
 export function LandingPage({ onDownload }: LandingPageProps) {
   const navigate = useNavigate();
 
-  // We use the prop passed from App.tsx to handle the download
   const handleDownloadClick = () => {
     if (onDownload) {
       onDownload();
     } else {
-      // Fallback if prop isn't provided
       window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe';
     }
   };
@@ -137,4 +134,80 @@ export function LandingPage({ onDownload }: LandingPageProps) {
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Why Choose CV AI Scanner?</h2>
           <p className="text-xl text-slate-600 text-center mb-12 max-w-2xl mx-auto">
             It outputs briefings of how each CV compares to the job requirements you determined in your job description and ranks CVs in order of job fit for those requirements.
-          </p
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-xl p-8 border border-slate-200 hover:border-blue-300 transition">
+              <div className="flex gap-4">
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-slate-900 mb-2">No Sensitive Data Processing</h3>
+                  <p className="text-slate-600">We don't process the data as a third-party. You retain it for the whole process.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 border border-slate-200 hover:border-blue-300 transition">
+              <div className="flex gap-4">
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-slate-900 mb-2">Offline Capability</h3>
+                  <p className="text-slate-600">After payment, use CV analysis offline. No internet required.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 border border-slate-200 hover:border-blue-300 transition">
+              <div className="flex gap-4">
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-slate-900 mb-2">Free Trial Included</h3>
+                  <p className="text-slate-600">10 free CVs to test the system before paying anything.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 border border-slate-200 hover:border-blue-300 transition">
+              <div className="flex gap-4">
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-slate-900 mb-2">Smart Ranking</h3>
+                  <p className="text-slate-600">AI analyzes experience, skills, location, and language proficiency.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Simple Pricing</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
+              <div className="mb-6"><span className="text-4xl font-bold">10</span> CVs</div>
+              <button className="w-full bg-slate-200 py-2 rounded-lg">Included</button>
+            </div>
+            <div className="bg-white rounded-xl p-8 border-2 border-blue-600">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
+              <div className="mb-6"><span className="text-4xl font-bold">100</span> CVs</div>
+              <button onClick={handleDownloadClick} className="w-full bg-blue-600 text-white py-2 rounded-lg">Get Started</button>
+            </div>
+            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Enterprise</h3>
+              <div className="mb-6"><span className="text-4xl font-bold">1000</span> CVs</div>
+              <button onClick={handleDownloadClick} className="w-full bg-blue-600 text-white py-2 rounded-lg">Get Started</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-12 text-center">
+        <p>Copyright 2026 CV AI Scanner. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+}
