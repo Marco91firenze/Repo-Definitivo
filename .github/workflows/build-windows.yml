@@ -16,8 +16,9 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
+      - name: Fix NPM and Install
         run: |
+          npm config delete os
           npm install
           npm install @rollup/rollup-win32-x64-msvc
 
