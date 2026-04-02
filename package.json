@@ -4,15 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "main": "main.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Marco91firenze/Repo-Definitivo.git"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "electron:dev": "electron .",
     "electron:build": "npm run build && electron-builder"
   },
   "build": {
@@ -44,12 +38,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.19",
     "electron": "^29.4.0",
     "electron-builder": "^24.13.3",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3",
-    "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }
 }
