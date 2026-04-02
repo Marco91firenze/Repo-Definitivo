@@ -1,13 +1,11 @@
 {
   "name": "cv-fit-check",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
-  "main": "electron-main.js",
+  "main": "main.js",
   "author": "Marco91firenze",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "electron:build": "npm run build && electron-builder"
   },
   "build": {
@@ -18,8 +16,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron-main.js",
-      "package.json"
+      "main.js"
     ],
     "win": {
       "target": "nsis",
@@ -36,15 +33,12 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.19",
     "electron": "^29.4.0",
     "electron-builder": "^24.13.3",
-    "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.2.2",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
     "vite": "^5.2.0"
   }
 }
