@@ -1,49 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from 'react';
+import { useUser } from '../contexts/UserContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { supabase } from '../lib/supabase';
 import { JobForm } from './JobForm';
 import { JobList } from './JobList';
 import { CVUpload } from './CVUpload';
 import { ResultsDashboard } from './ResultsDashboard';
+import { CreditsPanel } from './CreditsPanel';
 import LanguageSelector from './LanguageSelector';
-import { LogOut, Briefcase, Upload, BarChart3 } from 'lucide-react';
+import { Briefcase, Upload, BarChart3, CreditCard, Settings } from 'lucide-react';
 
-type View = 'jobs' | 'upload' | 'results';
-
-interface Company {
-  company_name: string;
-  free_cvs_remaining: number;
-  total_cvs_processed: number;
-}
+type View = 'jobs' | 'upload' | 'results' | 'credits';
 
 export function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user } = useUser();
   const { t } = useLanguage();
   const [view, setView] = useState<View>('jobs');
-  const [company, setCompany] = useState<Company | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [refreshJobs, setRefreshJobs] = useState(0);
-
-  useEffect(() => {
-    if (user) {
-      loadCompany();
-    }
-  }, [user]);
-
-  const loadCompany = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('companies')
-      .select('company_name, free_cvs_remaining, total_cvs_processed')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (data) {
-      setCompany(data);
-    }
-  };
 
   const handleJobCreated = () => {
     setView('jobs');
@@ -66,33 +39,26 @@ export function Dashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-900">CV Fit Check</h1>
-                {company && (
-                  <p className="text-xs text-slate-500">{company.company_name}</p>
+                {user && (
+                  <p className="text-xs text-slate-500">{user.company_name}</p>
                 )}
               </div>
             </div>
 
             <div className="flex items-center space-x-6">
               <LanguageSelector />
-              {company && (
+              {user && (
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="text-right">
-                    <p className="text-slate-500">Free CVs Remaining</p>
-                    <p className="font-semibold text-slate-900">{company.free_cvs_remaining}</p>
+                    <p className="text-slate-500">Credits</p>
+                    <p className="font-semibold text-slate-900">{user.credits_remaining}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-slate-500">Total Processed</p>
-                    <p className="font-semibold text-slate-900">{company.total_cvs_processed}</p>
+                    <p className="text-slate-500">CVs Selected</p>
+                    <p className="font-semibold text-slate-900">{user.total_cvs_selected}</p>
                   </div>
                 </div>
               )}
-              <button
-                onClick={() => signOut()}
-                className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>{t('dashboard.logout')}</span>
-              </button>
             </div>
           </div>
         </div>
@@ -133,6 +99,17 @@ export function Dashboard() {
             <BarChart3 className="w-5 h-5" />
             <span>{t('dashboard.results')}</span>
           </button>
+          <button
+            onClick={() => setView('credits')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
+              view === 'credits'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <CreditCard className="w-5 h-5" />
+            <span>Credits</span>
+          </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -144,6 +121,7 @@ export function Dashboard() {
           )}
           {view === 'upload' && <CVUpload selectedJobId={selectedJobId} />}
           {view === 'results' && <ResultsDashboard />}
+          {view === 'credits' && <CreditsPanel />}
         </div>
       </div>
     </div>

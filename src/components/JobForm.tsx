@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { supabase } from '../lib/supabase';
 import { Plus, X } from 'lucide-react';
 
 interface JobFormProps {
@@ -9,7 +7,6 @@ interface JobFormProps {
 }
 
 export function JobForm({ onJobCreated }: JobFormProps) {
-  const { user } = useAuth();
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -36,24 +33,24 @@ export function JobForm({ onJobCreated }: JobFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
 
     setLoading(true);
     setError('');
 
     try {
-      const { error: insertError } = await supabase.from('jobs').insert({
-        company_id: user.id,
+      const result = await (window as any).electronAPI.createJob({
+        id: crypto.randomUUID(),
         title,
         location,
         english_level: englishLevel,
         minimum_experience: minExperience,
         required_skills: skills,
         description,
-        status: 'active',
       });
 
-      if (insertError) throw insertError;
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to create job');
+      }
 
       setTitle('');
       setLocation('');
@@ -188,11 +185,7 @@ export function JobForm({ onJobCreated }: JobFormProps) {
                   className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
                 >
                   <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeSkill(skill)}
-                    className="hover:text-blue-900"
-                  >
+                  <button type="button" onClick={() => removeSkill(skill)} className="hover:text-blue-900">
                     <X className="w-4 h-4" />
                   </button>
                 </span>

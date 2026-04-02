@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ArrowLeft, MapPin, Languages, Clock, Briefcase, FileText, Trash2 } from 'lucide-react';
 
@@ -9,16 +8,11 @@ interface Job {
   location: string;
   english_level: string;
   minimum_experience: number;
-  required_skills: string[];
+  required_skills: string;
   description: string;
   status: string;
   created_at: string;
-  scoring_parameters: {
-    skillsWeight?: number;
-    experienceWeight?: number;
-    educationWeight?: number;
-    englishWeight?: number;
-  } | null;
+  scoring_parameters: string | null;
 }
 
 interface JobDetailProps {
@@ -37,33 +31,20 @@ export function JobDetail({ jobId, onBack }: JobDetailProps) {
   }, [jobId]);
 
   const loadJob = async () => {
-    const { data } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('id', jobId)
-      .single();
-
-    if (data) {
-      setJob(data);
+    const result = await (window as any).electronAPI.getJob(jobId);
+    if (result?.success && result.data) {
+      setJob(result.data);
     }
     setLoading(false);
   };
 
   const handleDeleteJob = async () => {
-    if (!confirm(t('jobForm.deleteJobConfirm'))) {
-      return;
-    }
+    if (!confirm(t('jobForm.deleteJobConfirm'))) return;
 
     setDeleting(true);
-
     try {
-      const { error } = await supabase
-        .from('jobs')
-        .delete()
-        .eq('id', jobId);
-
-      if (error) throw error;
-
+      const result = await (window as any).electronAPI.deleteJob(jobId);
+      if (!result?.success) throw new Error(result?.error);
       onBack();
     } catch (error) {
       alert('Failed to delete job. Please try again.');
@@ -83,15 +64,14 @@ export function JobDetail({ jobId, onBack }: JobDetailProps) {
     return (
       <div className="text-center py-12">
         <p className="text-slate-600">Job not found</p>
-        <button
-          onClick={onBack}
-          className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
-        >
+        <button onClick={onBack} className="mt-4 text-blue-600 hover:text-blue-700 font-medium">
           {t('common.back')}
         </button>
       </div>
     );
   }
+
+  const skills: string[] = JSON.parse(job.required_skills || '[]');
 
   return (
     <div className="space-y-6">
@@ -176,11 +156,11 @@ export function JobDetail({ jobId, onBack }: JobDetailProps) {
           </div>
         )}
 
-        {job.required_skills && job.required_skills.length > 0 && (
+        {skills.length > 0 && (
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-3">Required Skills</h2>
             <div className="flex flex-wrap gap-2">
-              {job.required_skills.map((skill) => (
+              {skills.map((skill) => (
                 <span
                   key={skill}
                   className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-medium"
@@ -188,46 +168,6 @@ export function JobDetail({ jobId, onBack }: JobDetailProps) {
                   {skill}
                 </span>
               ))}
-            </div>
-          </div>
-        )}
-
-        {job.scoring_parameters && (
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">Scoring Weights</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {job.scoring_parameters.skillsWeight !== undefined && (
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 font-medium mb-1">Skills</p>
-                  <p className="text-xl font-bold text-slate-900">
-                    {job.scoring_parameters.skillsWeight}%
-                  </p>
-                </div>
-              )}
-              {job.scoring_parameters.experienceWeight !== undefined && (
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 font-medium mb-1">Experience</p>
-                  <p className="text-xl font-bold text-slate-900">
-                    {job.scoring_parameters.experienceWeight}%
-                  </p>
-                </div>
-              )}
-              {job.scoring_parameters.educationWeight !== undefined && (
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 font-medium mb-1">Education</p>
-                  <p className="text-xl font-bold text-slate-900">
-                    {job.scoring_parameters.educationWeight}%
-                  </p>
-                </div>
-              )}
-              {job.scoring_parameters.englishWeight !== undefined && (
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 font-medium mb-1">English</p>
-                  <p className="text-xl font-bold text-slate-900">
-                    {job.scoring_parameters.englishWeight}%
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         )}
