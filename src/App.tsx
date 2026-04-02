@@ -1,51 +1,34 @@
 import React from 'react';
 
 function App() {
-  const GITHUB_USER = "Marco91firenze";
-  const GITHUB_REPO = "Repo-Definitivo";
-  const DOWNLOAD_URL = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/cval-client-setup.exe`;
+  // Direct link to the specific file asset in your v1.0.0 release
+  const DOWNLOAD_URL = "https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe";
 
   const handleDownload = () => {
-    window.open(DOWNLOAD_URL, '_blank');
+    // Hidden anchor trick to force immediate download
+    const link = document.createElement('a');
+    link.href = DOWNLOAD_URL;
+    link.download = 'CV Fit Check Setup 1.0.0.exe';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
-    <div style={{
-      backgroundColor: '#0f172a',
-      color: 'white',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'system-ui, sans-serif'
-    }}>
-      <h1 style={{ fontSize: '4rem', marginBottom: '0.5rem', fontWeight: '800' }}>CVAL</h1>
-      <p style={{ color: '#94a3b8', fontSize: '1.25rem', marginBottom: '2rem' }}>The Definitivo Desktop Client</p>
+    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 font-sans">
+      <h1 className="text-5xl font-extrabold mb-4 text-blue-400">CV Fit Check</h1>
+      <p className="text-xl text-slate-400 mb-12">Professional Desktop Analysis Tool</p>
       
       <button 
         onClick={handleDownload}
-        style={{
-          backgroundColor: '#3b82f6',
-          color: 'white',
-          padding: '18px 48px',
-          borderRadius: '50px',
-          border: 'none',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          transition: 'all 0.2s',
-          boxShadow: '0 10px 20px -5px rgba(59, 130, 246, 0.5)'
-        }}
-        onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-        onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-full transition-transform transform hover:scale-105 shadow-lg shadow-blue-500/30 border-none cursor-pointer"
       >
         Download for Windows
       </button>
       
-      <footer style={{ marginTop: '50px', color: '#475569' }}>
-        v1.0.0 • Verified Build
-      </footer>
+      <div className="mt-12 text-sm text-slate-500">
+        Current Version: 1.0.0
+      </div>
     </div>
   );
 }
