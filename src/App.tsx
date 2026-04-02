@@ -1,7 +1,18 @@
 import React from 'react';
 
 function App() {
-  const downloadUrl = "https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/cval-client-setup.exe";
+  // This specific URL format triggers an immediate download ONCE a release exists.
+  const LATEST_RELEASE_URL = "https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/cval-client-setup.exe";
+
+  const handleDownload = (e: React.MouseEvent) => {
+    // We use a hidden anchor trick to force the browser to treat it as a download
+    const link = document.createElement('a');
+    link.href = LATEST_RELEASE_URL;
+    link.download = 'cval-client-setup.exe';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div style={{ 
@@ -14,28 +25,28 @@ function App() {
       justifyContent: 'center',
       fontFamily: 'sans-serif' 
     }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>CVAL Client</h1>
-      <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Professional Data Management Desktop App</p>
+      <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>CVAL</h1>
+      <p style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '2.5rem' }}>Secure Desktop Client</p>
       
-      <a 
-        href={downloadUrl}
+      <button 
+        onClick={handleDownload}
         style={{
-          backgroundColor: '#2563eb',
+          backgroundColor: '#3b82f6',
           color: 'white',
-          padding: '15px 40px',
-          borderRadius: '30px',
-          textDecoration: 'none',
+          padding: '16px 45px',
+          borderRadius: '9999px',
+          border: 'none',
+          fontSize: '1.1rem',
           fontWeight: 'bold',
-          transition: 'transform 0.2s'
+          cursor: 'pointer',
+          boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.5)'
         }}
-        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
         Download for Windows
-      </a>
+      </button>
       
-      <div style={{ marginTop: '50px', color: '#475569', fontSize: '0.8rem' }}>
-        v1.0.0 • Secure Installer
+      <div style={{ marginTop: '40px', color: '#475569', fontSize: '0.9rem' }}>
+        v1.0.0 • Official Installer
       </div>
     </div>
   );
