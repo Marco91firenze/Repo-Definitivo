@@ -9,8 +9,8 @@ import { shell } from 'electron';
 import { getUserProfile, isPurchaseSynced, markPurchaseSynced } from './database.js';
 import { v4 as uuidv4 } from 'uuid';
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = 'https://rnkfuzqfearobfyybkhd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJua2Z1enFmZWFyb2JmeXlia2hkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NzgwNDAsImV4cCI6MjA5MDQ1NDA0MH0.vh6xaNYtHrBs5TTSILMWJQq1s9t3JspItVrxEPDfH28';
 
 interface PurchasePackage {
   name: string;
