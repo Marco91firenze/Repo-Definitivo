@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp main.js dist/main.js",
+    "build": "vite build && node -e \"fs.copyFileSync('main.js', 'dist/main.js')\"",
     "preview": "vite preview",
     "electron:dev": "electron .",
     "electron:build": "npm run build && electron-builder"
