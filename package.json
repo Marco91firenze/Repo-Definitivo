@@ -3,14 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/main.js",
+  "main": "main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Marco91firenze/Repo-Definitivo.git"
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"fs.copyFileSync('main.js', 'dist/main.js')\"",
+    "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "electron .",
     "electron:build": "npm run build && electron-builder"
@@ -23,6 +23,7 @@
     },
     "files": [
       "dist/**/*",
+      "main.js",
       "package.json"
     ],
     "win": {
