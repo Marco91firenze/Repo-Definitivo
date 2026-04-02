@@ -14,7 +14,7 @@ function App() {
           CVAL Client
         </h1>
         <p className="text-xl text-slate-400 max-w-md mx-auto">
-          The ultimate desktop experience for managing your data.
+          Secure Desktop Data Management.
         </p>
       </header>
 
@@ -26,23 +26,8 @@ function App() {
           >
             Download for Windows
           </button>
-          <p className="mt-4 text-sm text-slate-500">Version 1.0.0 • .exe</p>
+          <p className="mt-4 text-sm text-slate-500">v1.0.0 • .exe installer</p>
         </div>
-
-        <section className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
-          <div className="text-center">
-            <h3 className="font-bold text-lg mb-2">High Performance</h3>
-            <p className="text-slate-400 text-sm">Built with Vite and Electron.</p>
-          </div>
-          <div className="text-center">
-            <h3 className="font-bold text-lg mb-2">Secure</h3>
-            <p className="text-slate-400 text-sm">Local data encryption.</p>
-          </div>
-          <div className="text-center">
-            <h3 className="font-bold text-lg mb-2">Auto Updates</h3>
-            <p className="text-slate-400 text-sm">Seamless background updates.</p>
-          </div>
-        </section>
       </main>
 
       <footer className="mt-20 text-slate-600 text-sm">
