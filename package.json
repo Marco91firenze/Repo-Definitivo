@@ -3,12 +3,35 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Marco91firenze/Repo-Definitivo.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "electron .",
     "electron:build": "vite build && electron-builder"
+  },
+  "build": {
+    "appId": "com.cval.app",
+    "productName": "CVAL Client",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "cval-client-setup.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Marco91firenze",
+        "repo": "Repo-Definitivo"
+      }
+    ]
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -23,8 +46,5 @@
     "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.14.1"
   }
 }
