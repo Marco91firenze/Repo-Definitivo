@@ -1,4 +1,4 @@
-name: Build Windows Installer
+name: Build and Release Windows
 on:
   workflow_dispatch:
   push:
@@ -17,18 +17,15 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --include=optional
+        run: npm install
 
-      - name: Build application
-        run: npm run build
-
-      - name: Build Windows installer
-        run: npx electron-builder --windows
+      - name: Build and Publish
+        run: npx electron-builder --windows --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload artifacts
+      - name: Upload Artifact (Backup)
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist/*.exe
+          path: dist_electron/*.exe
