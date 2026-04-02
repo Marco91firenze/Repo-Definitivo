@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Production Pipeline
 on:
   push:
     branches: [ main ]
@@ -10,24 +10,24 @@ permissions:
   id-token: write
 
 jobs:
-  everything:
+  build-and-deploy:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: Install
+
+      - name: Install dependencies
         run: npm install
 
-      - name: Build and Release
+      - name: Build Web and Windows App
         run: npm run electron:build -- --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
