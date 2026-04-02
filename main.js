@@ -12,7 +12,7 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    // In production, load the index.html from the dist folder
+    // Correct path for packaged apps
     win.loadFile(path.join(__dirname, 'dist/index.html'));
   } else {
     win.loadURL('http://localhost:5173');
