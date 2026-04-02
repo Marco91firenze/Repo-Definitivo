@@ -2,7 +2,7 @@
   "name": "cv-fit-check",
   "private": true,
   "version": "1.0.0",
-  "description": "CV AI Scanner - Privacy-first CV ranking system using local AI.",
+  "description": "CV AI Scanner - Privacy-first CV ranking system using local AI with full GDPR compliance.",
   "main": "electron/main.js",
   "author": "Marco91firenze",
   "scripts": {
