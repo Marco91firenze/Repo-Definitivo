@@ -16,11 +16,20 @@
     },
     "files": [
       "dist/**/*",
-      "main.js"
+      "main.js",
+      "package.json"
     ],
+    "extraMetadata": {
+      "main": "main.js"
+    },
     "win": {
       "target": "nsis",
       "artifactName": "CV Fit Check Setup 1.0.0.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": true
     },
     "publish": {
       "provider": "github",
