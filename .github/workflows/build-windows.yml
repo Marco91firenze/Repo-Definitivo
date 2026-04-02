@@ -15,14 +15,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Fix NPM and Install
-        run: |
-          npm config delete os
-          npm install
-          npm install @rollup/rollup-win32-x64-msvc
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
       - name: Build and Publish
-        run: npx electron-builder --windows --publish always
+        run: npm run electron:build -- --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
