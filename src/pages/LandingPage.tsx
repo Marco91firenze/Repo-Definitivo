@@ -1,19 +1,11 @@
 import { Download, Lock, Zap, Shield, CheckCircle, ArrowRight, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface LandingPageProps {
-  onDownload?: () => void;
-}
-
-export function LandingPage({ onDownload }: LandingPageProps) {
+export function LandingPage() {
   const navigate = useNavigate();
 
-  const handleDownloadClick = () => {
-    if (onDownload) {
-      onDownload();
-    } else {
-      window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe';
-    }
+  const handleDownload = () => {
+    window.location.href = 'https://github.com/Marco91firenze/Repo-Definitivo/releases/latest/download/CV-Fit-Check-1.0.0.exe';
   };
 
   return (
@@ -26,7 +18,7 @@ export function LandingPage({ onDownload }: LandingPageProps) {
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-900">CV AI Scanner</h1>
+              <h1 className="text-2xl font-bold text-slate-900">AI CV Scanner</h1>
             </div>
             <nav className="flex items-center gap-6">
               <a href="#features" className="hidden sm:inline text-slate-600 hover:text-slate-900 transition">Features</a>
@@ -40,7 +32,7 @@ export function LandingPage({ onDownload }: LandingPageProps) {
                 Sign In
               </button>
               <button
-                onClick={handleDownloadClick}
+                onClick={handleDownload}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition"
               >
                 Download
@@ -63,7 +55,7 @@ export function LandingPage({ onDownload }: LandingPageProps) {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={handleDownloadClick}
+                  onClick={handleDownload}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 text-lg"
                 >
                   <Download className="w-5 h-5" />
@@ -131,7 +123,7 @@ export function LandingPage({ onDownload }: LandingPageProps) {
       {/* Why Choose Section */}
       <section id="why" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Why Choose CV AI Scanner?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Why Choose AI CV Scanner?</h2>
           <p className="text-xl text-slate-600 text-center mb-12 max-w-2xl mx-auto">
             It outputs briefings of how each CV compares to the job requirements you determined in your job description and ranks CVs in order of job fit for those requirements.
           </p>
@@ -180,33 +172,202 @@ export function LandingPage({ onDownload }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-slate-50">
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Simple Pricing</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
-              <div className="mb-6"><span className="text-4xl font-bold">10</span> CVs</div>
-              <button className="w-full bg-slate-200 py-2 rounded-lg">Included</button>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-12 text-center">Powerful Features</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Quick Setup</h3>
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <span className="text-blue-600 font-bold">1</span>
+                  <span className="text-slate-600">Download and install the app</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-blue-600 font-bold">2</span>
+                  <span className="text-slate-600">Create your account</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-blue-600 font-bold">3</span>
+                  <span className="text-slate-600">Create a job posting</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-blue-600 font-bold">4</span>
+                  <span className="text-slate-600">Select CVs to analyze</span>
+                </li>
+              </ul>
             </div>
-            <div className="bg-white rounded-xl p-8 border-2 border-blue-600">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
-              <div className="mb-6"><span className="text-4xl font-bold">100</span> CVs</div>
-              <button onClick={handleDownloadClick} className="w-full bg-blue-600 text-white py-2 rounded-lg">Get Started</button>
-            </div>
-            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Enterprise</h3>
-              <div className="mb-6"><span className="text-4xl font-bold">1000</span> CVs</div>
-              <button onClick={handleDownloadClick} className="w-full bg-blue-600 text-white py-2 rounded-lg">Get Started</button>
+
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Smart Analysis</h3>
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-slate-600">Experience matching</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-slate-600">Skills identification</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-slate-600">Location matching</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-slate-600">Language assessment</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">Simple Pricing</h2>
+          <p className="text-lg text-slate-600 text-center mb-12">Start free, pay only when you need more</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
+              <p className="text-slate-600 mb-6">Perfect for trying it out</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-slate-900">10</span>
+                <span className="text-slate-600"> CVs</span>
+              </div>
+              <ul className="space-y-2 mb-8">
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  Full analysis included
+                </li>
+              </ul>
+              <button className="w-full bg-slate-200 text-slate-900 font-semibold py-2 rounded-lg cursor-default">
+                Included
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 border-2 border-blue-600 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                Popular
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
+              <p className="text-slate-600 mb-6">For growing teams</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-slate-900">100</span>
+                <span className="text-slate-600"> CVs</span>
+              </div>
+              <div className="text-3xl font-bold text-slate-900 mb-6">€50</div>
+              <ul className="space-y-2 mb-8">
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  Everything in Free
+                </li>
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  100 CV analyses
+                </li>
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  One-time payment
+                </li>
+              </ul>
+              <button
+                onClick={handleDownload}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
+              >
+                Get Started
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Enterprise</h3>
+              <p className="text-slate-600 mb-6">For large organizations</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-slate-900">1000</span>
+                <span className="text-slate-600"> CVs</span>
+              </div>
+              <div className="text-3xl font-bold text-slate-900 mb-6">€300</div>
+              <ul className="space-y-2 mb-8">
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  Everything in Professional
+                </li>
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  1000 CV analyses
+                </li>
+                <li className="flex gap-2 text-slate-600">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  Best value
+                </li>
+              </ul>
+              <button
+                onClick={handleDownload}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Download AI CV Scanner now and analyze your first 10 CVs for free. No credit card required.
+          </p>
+          <button
+            onClick={handleDownload}
+            className="bg-white hover:bg-blue-50 text-blue-600 font-semibold px-8 py-4 rounded-lg transition text-lg inline-flex items-center gap-2"
+          >
+            <Download className="w-5 h-5" />
+            Download for Windows
+          </button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12 text-center">
-        <p>Copyright 2026 CV AI Scanner. All rights reserved.</p>
+      <footer className="bg-slate-900 text-slate-400 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="text-white font-bold mb-4">About</h3>
+              <p className="text-sm">AI CV Scanner - Privacy-first CV ranking for modern HR.</p>
+            </div>
+            <div>
+              <h3 className="text-white font-bold mb-4">Features</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition">Local Processing</a></li>
+                <li><a href="#" className="hover:text-white transition">GDPR Compliant</a></li>
+                <li><a href="#" className="hover:text-white transition">Free Trial</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-bold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-bold mb-4">Support</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition">Documentation</a></li>
+                <li><a href="mailto:support@aicvscanner.com" className="hover:text-white transition">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-800 pt-8 text-center text-sm">
+            <p>Copyright 2026 AI CV Scanner. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
