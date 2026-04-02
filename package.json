@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "main": "main.js",
+  "author": "Marco91firenze",
+  "description": "CVAL Desktop Client",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -22,15 +24,13 @@
     ],
     "win": {
       "target": "nsis",
-      "artifactName": "cval-client-setup.${ext}"
+      "artifactName": "cval-client-setup.exe"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "Marco91firenze",
-        "repo": "Repo-Definitivo"
-      }
-    ]
+    "publish": {
+      "provider": "github",
+      "owner": "Marco91firenze",
+      "repo": "Repo-Definitivo"
+    }
   },
   "dependencies": {
     "react": "^18.2.0",
