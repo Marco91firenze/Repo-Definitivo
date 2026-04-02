@@ -1,51 +1,58 @@
 {
   "name": "cv-fit-check",
+  "private": true,
   "version": "1.0.0",
-  "main": "main.js",
+  "description": "CV AI Scanner - Privacy-first CV ranking system using local AI.",
+  "main": "electron/main.js",
   "author": "Marco91firenze",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "electron:build": "npm run build && electron-builder"
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "electron:build": "npm run build && electron-builder --publish always"
+  },
+  "dependencies": {
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.56",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.18",
+    "electron": "^29.4.6",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.4"
   },
   "build": {
-    "appId": "com.cvfit.check",
+    "appId": "com.cvfitcheck.app",
     "productName": "CV Fit Check",
     "directories": {
       "output": "dist_electron"
     },
     "files": [
       "dist/**/*",
-      "main.js",
-      "package.json"
+      "electron/**/*"
     ],
-    "extraMetadata": {
-      "main": "main.js"
-    },
     "win": {
-      "target": "nsis",
-      "artifactName": "CV Fit Check Setup 1.0.0.exe"
+      "target": [
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "runAfterFinish": true
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "Marco91firenze",
-      "repo": "Repo-Definitivo"
+      "allowToChangeInstallationDirectory": true
     }
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^29.4.0",
-    "electron-builder": "^24.13.3",
-    "vite": "^5.2.0"
   }
 }
