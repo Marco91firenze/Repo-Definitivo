@@ -5,7 +5,6 @@ import { Dashboard } from './components/Dashboard';
 import { ResetPassword } from './components/ResetPassword';
 import { LandingPage } from './pages/LandingPage';
 
-// --- NEW DOWNLOAD LOGIC ---
 const handleDownload = () => {
   const DOWNLOAD_URL = "https://github.com/Marco91firenze/Repo-Definitivo/releases/download/v1.0.0/CV%20Fit%20Check%20Setup%201.0.0.exe";
   const link = document.createElement('a');
@@ -36,7 +35,6 @@ function AppContent() {
           ) : user ? (
             <Navigate to="/app" replace />
           ) : (
-            /* We pass the download function as a prop to the LandingPage */
             <LandingPage onDownload={handleDownload} />
           )
         }
